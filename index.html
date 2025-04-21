@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自适应网页</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 全局样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* 菜单栏样式 */
+        .navbar {
+            height: 60px;
+            background-color: #0D0D0D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0 20px;
+            transition: color 0.3s ease;
+            /* 鼠标悬停时文字颜色渐变效果 */
+        }
+
+        .navbar a:hover {
+            color: #ccc;
+            /* 鼠标悬停时文字颜色变化 */
+        }
+
+        /* 模块样式 */
+        .module {
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        #module1 {
+            background-image: url('img/picture1.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #module2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #module2 img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #module3 {
+            display: flex;
+        }
+
+        #module3-left,
+        #module3-right {
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        #module3-left {
+            width: 30%;
+            background-color: #CEDEF2;
+            /* 调整为列布局，让标题和内容垂直排列 */
+            flex-direction: column; 
+        }
+
+        #module3-left h2 {
+            font-family: 黑体;
+            font-size: 40px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        #module3-left p {
+            font-family: 宋体;
+            font-size: 15px;
+            margin: 20px;
+        }
+
+        #module3-right {
+            width: 70%;
+            background-color: #F2E307;
+            display: block;
+            position: relative;
+            padding: 0;
+            margin: 0;
+        }
+
+        #module3-right iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+        }
+
+        /* 返回顶部箭头样式 */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            font-size: 28px;
+            color: white;
+            background-color: #FF5722;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        #back-to-top:hover {
+            transform: scale(1.1);
+        }
+
+        /* 图表容器样式 */
+        #main {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 菜单栏 -->
+    <div class="navbar">
+        <a href="#" onclick="scrollToSection(event, 'top')">首页</a>
+        <a href="#" onclick="scrollToSection(event, 'module1')">模块一</a>
+        <a href="#" onclick="scrollToSection(event, 'module2')">模块二</a>
+        <a href="#" onclick="scrollToSection(event, 'module3')">模块三</a>
+    </div>
+    <!-- 模块一 -->
+    <div id="module1" class="module">
+        <div id="main"></div>
+    </div>
+    <!-- 模块二 -->
+    <div id="module2" class="module">
+        <img src="img/picture1.jpg" alt="picture1">
+    </div>
+    <!-- 模块三 -->
+    <div id="module3" class="module">
+        <div id="module3-left">
+            <h2>红楼梦文本可视化</h2>
+            <p>《红楼梦》是中国古典四大名著之首、清代作家曹雪芹创作的章回体长篇小说，又名《石头记》《金玉缘》。小说以贾、史、王、薛四大家族的兴衰为背景，以贾宝玉、林黛玉、薛宝钗的爱情婚姻悲剧为主线，深刻揭示了封建社会的内在矛盾与必然崩溃的历史趋势。</p>
+        </div>
+        <div id="module3-right">
+            <!-- 嵌入 relationship_network.html -->
+            <iframe src="relationship_network.html" frameborder="0"></iframe>
+        </div>
+    </div>
+    <!-- 返回顶部箭头 -->
+    <div id="back-to-top" onclick="scrollToTop()">↑</div>
+
+    <script>
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToSection(event, sectionId) {
+            event.preventDefault();
+            const target = sectionId === 'top' ? 0 : document.getElementById(sectionId).offsetTop;
+            window.scrollTo({
+                top: target,
+                behavior: 'smooth'
+            });
+        }
+
+        var chartDom = document.getElementById('main');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            color: ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
+            title: {
+                text: 'Gradient Stacked Area Chart'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            legend: {
+                data: ['Line 1', 'Line 2', 'Line 3', 'Line 4', 'Line 5']
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: 'Line 1',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(128, 255, 165)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(1, 191, 236)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [140, 232, 101, 264, 90, 340, 250]
+                },
+                {
+                    name: 'Line 2',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(0, 221, 255)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(77, 119, 255)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [120, 282, 111, 234, 220, 340, 310]
+                },
+                {
+                    name: 'Line 3',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(55, 162, 255)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(116, 21, 219)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [320, 132, 201, 334, 190, 130, 220]
+                },
+                {
+                    name: 'Line 4',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(255, 0, 135)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(135, 0, 157)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [220, 402, 231, 134, 190, 230, 120]
+                },
+                {
+                    name: 'Line 5',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    label: {
+                        show: true,
+                        position: 'top'
+                    },
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(255, 191, 0)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(224, 62, 76)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [220, 302, 181, 234, 210, 290, 150]
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    </script>
+</body>
+
+</html>
